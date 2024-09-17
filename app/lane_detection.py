@@ -3,9 +3,10 @@ import cv2
 import time
 from threading import Thread
 from queue import Queue
+import os
 
 # defualt video number, if you want to process the "fog_video.mp4", change video_index to 1
-video_index = 0
+video_index = 1
 
 # the result of lane detection, we add the road to the main frame
 road = np.zeros((720, 1280, 3))
@@ -180,17 +181,16 @@ def main_pipeline(input):
     project_lanelines(binary_warped, image, left_fit, right_fit, dst_mask, src_mask)
 
 if __name__ == '__main__':
-    
+    outputdir=os.getcwd()
+    path0 = os.path.join(outputdir, "data", "project_video" + ".mp4")
+    #path1 = os.path.join(outputdir, "data", "fog_video" + ".mp4")
+    path1 = os.path.join(outputdir, "data", "freeway_0188" + ".mp4")
+    #path1 = os.path.join(outputdir, "data", "road_0116" + ".mp4")
     frames_counts = 1
     if video_index == 0:
-        cap=cv2.VideoCapture('data/project_video.mp4') 
+        cap=cv2.VideoCapture(path0) 
     else:
-        cap=cv2.VideoCapture('data/fog_video.mp4')      
-    # elif video_index == 1:
-    #     cap=cv2.VideoCapture('data/fog_video.mp4') 
-    # else:
-    #     cap=cv2.VideoCapture('data/cars-downsampled.mp4') 
-    
+        cap=cv2.VideoCapture(path1)      
 
     class MyThread(Thread):
         def __init__(self, q):
@@ -206,7 +206,9 @@ if __name__ == '__main__':
     q = Queue()
     q.queue.clear()
     thd1 = MyThread(q)
-    thd1.setDaemon(True)
+    # thd1.setDaemon(True)
+    thd1.daemon = True
+
     thd1.start()
 
     while (True):  
@@ -218,10 +220,11 @@ if __name__ == '__main__':
 
             # Add the lane image on the original frame if started
             if started:
-                frame = cv2.addWeighted(frame, 1, road, 0.5, 0)
-                cv2.imshow("RealTime_lane_detection",frame)  
+                frame = cv2.addWeighted(frame, 1, road, 0.5, 0.0)
+                cv2.imshow("Real-time lane detection",frame)  
             if cv2.waitKey(1)&0xFF==ord('q'):  
                 break  
+            
             frames_counts+=1
             cv2.waitKey(12)
             finish=time.time()
