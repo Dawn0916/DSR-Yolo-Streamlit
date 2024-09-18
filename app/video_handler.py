@@ -4,7 +4,7 @@ from typing import Callable
 import cv2
 import uuid
 import pandas as pd
-import tempfile
+#import tempfile
 import ultralytics
 import torch
 from yolo_helper import make_callback_adapter_with_counter, convert_tracking_results_to_pandas
